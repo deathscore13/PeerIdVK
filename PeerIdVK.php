@@ -1,5 +1,12 @@
 <?php
 
+/**
+ * PeerIdVK
+ * 
+ * Инструмент для поиска peer_id чатов сообщества в VK для PHP 8.0.0+
+ * https://github.com/deathscore13/PeerIdVK
+ */
+
 const ACCESS_TOKEN = 'ключ';    // ключ доступа к сообщениям сообщества
 const MAX_COUNTS = 20;          // количество id для брута от 2000000001 до 2000000000 + MAX_COUNTS
 
