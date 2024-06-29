@@ -28,31 +28,38 @@ curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
 curl_setopt($curl, CURLOPT_POST, true);
 
 /**
- * Стоковая функция из VirtualMachine
- * https://github.com/deathscore13/VirtualMachine
+ * Стоковая функция из VMPHP
+ * https://github.com/deathscore13/VMPHP
  */
-function findCLI(): ?string
+function findBinary(): ?string
 {
+    static $binary = null;
+
+    if ($binary === null)
+        $binary = @file_exists(PHP_BINARY) ? PHP_BINARY : PHP_BINDIR.'/php';
+
     if (PHP_SAPI === 'cli' || PHP_SAPI === 'cli-server')
-        return PHP_BINARY;
-    
-    if (!@file_exists(PHP_BINARY))
-        return null;
-    
-    $pos = strpos(PHP_BINARY, '-cgi');
-    $file = ($pos && strlen(PHP_BINARY) === ($pos + 4)) ? substr(PHP_BINARY, 0, $pos) : PHP_BINARY;
-    
-    $cli = $file.'-cli';
-    if (file_exists($cli))
+        return $binary;
+
+    $len = strlen($binary);
+    $pos = strrpos($binary, '-cgi');
+    if (($pos && $len === ($pos + 4)) ||
+       (($pos = strrpos($binary, '-fpm')) && $len === ($pos + 4)))
+    {
+        $bin = substr($binary, 0, $pos);
+    }
+
+    $cli = ($bin ?? $binary).'-cli';
+    if (@file_exists($cli))
         return $cli;
-    
-    if (file_exists($file))
-        return $file;
-    
-    return null;
+
+    if (isset($bin) && @file_exists($bin))
+        return $bin;
+
+    return @file_exists($binary) ? $binary : null;
 }
 
-$delim = (findCLI() === PHP_BINARY) ? PHP_EOL : '<br>';
+$delim = (findBinary() === PHP_BINARY) ? PHP_EOL : '<br>';
 
 $count = 0;
 $found = false;
